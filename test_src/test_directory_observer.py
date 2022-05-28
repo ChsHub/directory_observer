@@ -1,9 +1,6 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import win32con
-import win32event
-
 from directory_observer import DirectoryObservable
 
 
@@ -16,61 +13,90 @@ def assert_error(function: callable, error):
     assert False
 
 
-def test___init__(
-        timeout: int = win32event.INFINITE,
-        watch_sub_directories: bool = False,
-        change_flags=win32con.FILE_NOTIFY_CHANGE_LAST_WRITE):
-    """
-    :param observers: List of observer functions
-    :param timeout: Timeout for event; Infinity by default
-    :param path: File or directory to observe
-    :param watch_sub_directories: True if changes in sub directories should be observed
-    :param self.change_flags: Flags specifying what changes to watch
-    """
-
+def test___init__():
     def update(_path: str):
-        assert new_file == _path
+        assert str(path) == _path
 
     assert_error(lambda: DirectoryObservable('invalid_path'), FileNotFoundError)
     with TemporaryDirectory() as path:
         observable = DirectoryObservable(path, observers=[update])
         observable.start()
-        new_file = Path(path, 'new_file').touch()
+        new_file = Path(path, 'new_file')
+        new_file.touch()
+        observable.stop()
 
 
-def test_add_observer(update_function: callable):
-    """
-    Add observer function. The function is called on detected directory change with path as argument.
-    :param update_function: Callback function
-    """
-    pass
+def test_add_observer():
+    def update(_path: str):
+        pass
+
+    with TemporaryDirectory() as path:
+        observable = DirectoryObservable(path)
+        observable.add_observer(update)
+        assert update in observable._observers
+        observable.stop()
 
 
-def test_remove_observer(update_function: callable) -> bool:
-    """
-    Observe path, and call function on change
-    :param update_function: Callback function
-    """
-    pass
+def test_remove_observer():
+    def update(_path: str):
+        pass
+
+    with TemporaryDirectory() as path:
+        observable = DirectoryObservable(path, observers=[update])
+        assert update in observable._observers
+        observable.remove_observer(update)
+        assert update not in observable._observers
+        observable.stop()
 
 
-def test__notify_observers(self):
-    """
-    Notify all observers about directory change
-    """
-    pass
+def test__notify_observers():
+    class TestNotify:
+        called = False
+
+        def _update(self, _path: str):
+            self.called = True
+            assert test_notify.called
+
+    with TemporaryDirectory() as path:
+        test_notify = TestNotify()
+        observable = DirectoryObservable(path, observers=[test_notify._update])
+        observable.start()
+        assert not test_notify.called
+        new_file = Path(path, 'new_file')
+        new_file.touch()
+        observable.stop()
 
 
-def test_stop(timeout: float = None) -> None:
-    """
-    Stop the active thread
-    :param timeout: Timeout for joining the thread
-    """
-    pass
+def test_stop():
+    def update(_path: str):
+        pass
+
+    with TemporaryDirectory() as path:
+        observable = DirectoryObservable(str(path), observers=[update])
+        observable.start()
+        assert observable.is_alive()
+        observable.stop()
+        assert not observable.is_alive()
 
 
-def test_run(self) -> None:
-    """
-    run() function is started on Thread.start().
-    """
-    pass
+def test_run():
+    def update(_path: str):
+        assert False
+
+    with TemporaryDirectory() as path:
+        observable = DirectoryObservable(str(path), observers=[update])
+        observable._active = False
+        observable.run()
+
+
+def test___enter__():
+    def update(_path: str):
+        assert str(path) == _path
+
+    assert_error(lambda: DirectoryObservable('invalid_path'), FileNotFoundError)
+    with TemporaryDirectory() as path:
+        with DirectoryObservable(path, observers=[update]) as observable:
+            assert observable.is_alive()
+            new_file = Path(path, 'new_file')
+            new_file.write_text('TEST')
+        assert not observable.is_alive()

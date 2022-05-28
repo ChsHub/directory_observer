@@ -1,4 +1,4 @@
-# Path Observer
+# Directory Observer
 
 (Windows only) Observe directory changes, and notify observers when a change is detected.
 
@@ -20,8 +20,16 @@ def update(path: str):
 observable = DirectoryObservable(path, observers=[update])
 observable.start()  # Start observable thread
 
-observable.remove_observer(update)
-observable.add_observer(update)
+observable.remove_observer(update) # Remove observer
+observable.add_observer(update) # Add new observer
 
 observable.stop()  # Stop observable thread
 ```
+
+
+```python
+# Use "with" statement to call start() and stop()
+with DirectoryObservable(path, observers=[update]) as observable:
+    # Observe directory in this section
+```
+
