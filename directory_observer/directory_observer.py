@@ -32,7 +32,7 @@ class DirectoryObservable(Thread):
             raise FileNotFoundError
         self._path = str(self._path)
         self._timeout = timeout  # Only get notify on detected change
-        """https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstchangenotificationa"""
+        # """https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstchangenotificationa"""
         self._change_handle = win32file.FindFirstChangeNotification(self._path, watch_sub_directories, change_flags)
         self._active = True
         info(f'Change handle {self._change_handle}')
@@ -81,7 +81,7 @@ class DirectoryObservable(Thread):
         """
         while self._active:
             try:
-                """https://docs.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject"""
+                # """https://docs.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject"""
                 result = win32event.WaitForSingleObject(self._change_handle, self._timeout)
                 info(f'Event: {result}')
                 if not self._active:
