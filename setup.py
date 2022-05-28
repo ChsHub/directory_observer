@@ -1,6 +1,7 @@
 import setuptools
 from distutils.core import setup
 from directory_observer import __version__
+
 with open("README.md", "r") as f:
     long_description = f.read()
 
@@ -11,7 +12,7 @@ setup(
     author='ChsHub',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="",
+    url="https://github.com/ChsHub/directory_observer",
     packages=['directory_observer'],
     license='MIT License',
     classifiers=['Programming Language :: Python :: 3', 'Topic :: Software Development', 'Topic :: Utilities']

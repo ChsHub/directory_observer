@@ -1,6 +1,7 @@
 # Directory Observer
 
-(Windows only) Observe directory changes, and notify observers when a change is detected.
+(Windows only) The package implements an observable to monitor directory changes, and to notify observers when a change is detected. 
+The observable is running in a separate daemon thread, and is being locked while there are no changes (non-busy-waiting). 
 
 ## Installation
 
