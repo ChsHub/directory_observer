@@ -1,4 +1,3 @@
-from logging import exception, info
 from pathlib import Path
 from threading import Thread, Semaphore
 
@@ -11,6 +10,7 @@ class DirectoryObservable(Thread):
     """
     Notifies observers on directory change
     """
+
     def __enter__(self):
         self.start()
         return self
@@ -42,7 +42,6 @@ class DirectoryObservable(Thread):
         # """https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstchangenotificationa"""
         self._change_handle = win32file.FindFirstChangeNotification(self._path, watch_sub_directories, change_flag)
         self._active = True
-        info(f'Change handle {self._change_handle}')
 
     def add_observer(self, update_function: callable) -> None:
         """
@@ -79,7 +78,6 @@ class DirectoryObservable(Thread):
         """
         if self.is_alive():
             self._active = False
-            info('CLOSE OBSERVABLE')
             win32file.FindCloseChangeNotification(self._change_handle)
             super().join(timeout)
 
@@ -91,11 +89,10 @@ class DirectoryObservable(Thread):
             try:
                 # """https://docs.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject"""
                 result = win32event.WaitForSingleObject(self._change_handle, self._timeout)
-                info(f'Event: {result}')
                 if not self._active:
                     return
                 if result == win32con.WAIT_OBJECT_0:
                     self._notify_observers()
                     win32file.FindNextChangeNotification(self._change_handle)
             except Exception as e:
-                exception(e)
+                print(e)
