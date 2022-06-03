@@ -79,7 +79,6 @@ class DirectoryObservable(Thread):
         if self.is_alive():
             self._active = False
             win32file.FindCloseChangeNotification(self._change_handle)
-            super().join(timeout)
 
     def run(self) -> None:
         """
